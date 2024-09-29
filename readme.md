@@ -172,7 +172,3 @@ If triggered by an animation step, <code>extraData.origin</code> will be the str
 ## Webinterface
 
 Versions prior to 0.2 included a Webinterface. This has since been moved into its own repository at <https://github.com/node-dmx/dmx-web>
-
-## Community
-
-We're happy to help. Chat with us on IRC in #dmx on libera.chat.
