@@ -1,9 +1,5 @@
 # FORKED FROM node-dmx/dmx
 
-# node-dmx
-
-DMX-512 controller library for node.js
-
 ## Install
 
     npm install dmx
