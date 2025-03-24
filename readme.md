@@ -1,4 +1,4 @@
-# FORKED FROM node-dmx/dmx
+# DMX via Node.js
 
 ## Install
 
