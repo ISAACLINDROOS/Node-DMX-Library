@@ -1,172 +1,148 @@
-# DMX via Node.js
+# DMX Controller Library for Node.js
 
-## Install
+A custom DMX controller library for Node.js.
 
-    npm install dmx
+## Installation
+
+Install the package using npm:
+
+```sh
+npm install dmx
+```
 
 ## Library API
+
 ```javascript
-const DMX = require('dmx')
+const DMX = require('dmx');
 ```
 
-### Class DMX
+### DMX Class
 
-#### new DMX()
+#### `new DMX()`
 
-Create a new DMX instance. This class is used to tie multiple universes together.
+Creates a new DMX instance. This class is used to manage multiple universes.
 
-#### dmx.registerDriver(name, module)
+#### `dmx.registerDriver(name, module)`
 
-- <code>name</code> - String
-- <code>module</code> - Object implementing the Driver API
+Registers a new DMX driver module.
 
+- **name** *(String)* – Name of the driver.
+- **module** *(Object)* – Object implementing the Driver API.
 
-Register a new DMX Driver module by its name.
-These drivers are currently registered by default:
+##### Default Registered Drivers:
 
-- null: a development driver that prints the universe to stdout
-- socketio: a driver which sends out the universe via socket.IO as an array (see [demo_socket_client.js](./demo_socket_client.js) as a client example)
-- artnet: driver for EnttecODE
-- bbdmx: driver for [BeagleBone-DMX](https://github.com/boxysean/beaglebone-DMX)
-- dmx4all: driver for DMX4ALL devices like the "NanoDMX USB Interface"
-- enttec-usb-dmx-pro: a driver for devices using a Enttec USB DMX Pro chip like the "DMXKing ultraDMX Micro".
-- enttec-open-usb-dmx: driver for "Enttec Open DMX USB". This device is NOT recommended, there are known hardware limitations and this driver is not very stable. (If possible better obtain a device with the "pro" chip)
-- dmxking-utra-dmx-pro: driver for the DMXKing Ultra DMX pro interface. This driver support multiple universe specify the options with Port = A or B
+- **null** – Development driver that prints the universe to stdout.
+- **socketio** – Sends the universe via Socket.IO as an array ([Example Client](./demo_socket_client.js)).
+- **artnet** – Driver for Enttec ODE.
+- **bbdmx** – Driver for [BeagleBone-DMX](https://github.com/boxysean/beaglebone-DMX).
+- **dmx4all** – Driver for DMX4ALL devices like "NanoDMX USB Interface".
+- **enttec-usb-dmx-pro** – Driver for devices using an Enttec USB DMX Pro chip (e.g., DMXKing ultraDMX Micro).
+- **enttec-open-usb-dmx** – Driver for "Enttec Open DMX USB" *(Not recommended due to hardware limitations)*.
+- **dmxking-ultra-dmx-pro** – Driver for DMXKing Ultra DMX Pro interface (supports multiple universes via Port A or B).
 
-#### dmx.addUniverse(name, driver, device_id, options)
+#### `dmx.addUniverse(name, driver, device_id, options)`
 
-- <code>name</code> - String
-- <code>driver</code> - String, referring a registered driver
-- <code>device_id</code> - Number or Object
-- <code>options</code> - Object, driver specific options
+Adds a new DMX universe.
 
-Add a new DMX Universe with a name, driver and an optional device_id used by the driver to identify the device.
-For enttec-usb-dmx-pro and enttec-open-usb-dmx device_id is the path the the serial device. For artnet it is the target ip.
+- **name** *(String)* – Universe name.
+- **driver** *(String)* – A registered driver name.
+- **device_id** *(Number/Object)* – Identifier used by the driver.
+- **options** *(Object)* – Driver-specific options.
 
-#### dmx.update(universe, channels[, extraData])
+Example device IDs:
+- For `enttec-usb-dmx-pro` and `enttec-open-usb-dmx`, this is the serial device path.
+- For `artnet`, this is the target IP.
 
-- <code>universe</code> - String, name of the universe
-- <code>channels</code> - Object, keys are channel numbers, values the values to set that channel to
-- <code>extraData</code> - Object, this data will be passed unmodified to the <code>update</code> Event. (Optional; default value is `{}`)
+#### `dmx.update(universe, channels[, extraData])`
 
-Update one or multiple channels of a universe. Also emits a <code>update</code> Event with the same information.
+Updates one or more channels in a universe.
 
+- **universe** *(String)* – Universe name.
+- **channels** *(Object)* – Channel numbers as keys, values as brightness levels.
+- **extraData** *(Object, optional)* – Additional data passed to the `update` event *(default: `{}`)*.
 
-#### DMX.devices
+Emits an `update` event containing the same information.
 
-A JSON Object describing some Devices and how many channels they use.
-Currently not many devices are in there but more can be added to the <code>devices.js</code> file. Pull requests welcome ;-)
+#### `DMX.devices`
 
-The following Devices are known:
+A JSON object describing devices and their channel usage. More devices can be added to `devices.js` (Pull requests welcome!).
 
-- generic - a one channel dimmer
-- showtec-multidim2 - 4 channel dimmer with 4A per channel
-- eurolite-led-bar - Led bar with 3 RGB color segments and some programms
-- stairville-led-par-56 - RGB LED Par Can with some programms
+##### Known Devices:
 
-### Class DMX.Animation
+- **generic** – One-channel dimmer.
+- **showtec-multidim2** – 4-channel dimmer (4A per channel).
+- **eurolite-led-bar** – LED bar with 3 RGB color segments and effects.
+- **stairville-led-par-56** – RGB LED Par Can with effects.
 
-#### new DMX.Animation([options])
+### DMX.Animation Class
 
-Create a new DMX Animation instance. This can be chained similar to jQuery.
+#### `new DMX.Animation([options])`
 
-The options Object takes the following keys:
+Creates a new DMX animation instance, supporting method chaining.
 
-- <code>loop</code> - Number, the number of times this animation sequence will loop when <code>run</code> is invoked. This value is overridden if you invoke <code>runLoop</code>.
-- <code>filter</code> - Function, allows you to read or modify the values being set to each channel during each animation step.
+##### Options:
 
-If you specify a <code>filter</code> function, it must take a single object parameter in which keys are channel numbers and values are the values to set those channels to.
-You may modify the values in the object to override the values in real-time, for example to scale channel brightness based on a master fader.
+- **loop** *(Number)* – Number of times the sequence loops in `run` *(Overridden by `runLoop`)*.
+- **filter** *(Function)* – Allows modifying channel values in real-time (e.g., scaling brightness with a master fader).
 
-#### animation.add(to, duration, options)
+#### `animation.add(to, duration, options)`
 
-- <code>to</code> - Object, keys are channel numbers, values the values to set that channel to
-- <code>duration</code> - Number, duration in ms
-- <code>options</code> - Object
+Adds an animation step.
 
-Add an animation Step.
-The options Object takes an <code>easing</code> key which allows to set a easing function from the following list:
+- **to** *(Object)* – Channels and their target values.
+- **duration** *(Number)* – Duration in milliseconds.
+- **options** *(Object)* – Supports `easing` functions.
 
-- linear (default)
-- inQuad
-- outQuad
-- inOutQuad
-- inCubic
-- outCubic
-- inOutCubic
-- inQuart
-- outQuart
-- inOutQuart
-- inQuint
-- outQuint
-- inOutQuint
-- inSine
-- outSine
-- inOutSine
-- inExpo
-- outExpo
-- inOutExpo
-- inCirc
-- outCirc
-- inOutCirc
-- inElastic
-- outElastic
-- inOutElastic
-- inBack
-- outBack
-- inOutBack
-- inBounce
-- outBounce
-- inOutBounce
+##### Easing Functions:
 
-Returns a Animation object with the animation step added.
+- **Linear (default)**
+- **Quadratic**: inQuad, outQuad, inOutQuad
+- **Cubic**: inCubic, outCubic, inOutCubic
+- **Quartic**: inQuart, outQuart, inOutQuart
+- **Quintic**: inQuint, outQuint, inOutQuint
+- **Sine**: inSine, outSine, inOutSine
+- **Exponential**: inExpo, outExpo, inOutExpo
+- **Circular**: inCirc, outCirc, inOutCirc
+- **Elastic**: inElastic, outElastic, inOutElastic
+- **Back**: inBack, outBack, inOutBack
+- **Bounce**: inBounce, outBounce, inOutBounce
 
+#### `animation.delay(duration)`
 
-#### animation.delay(duration)
+Adds a delay step in milliseconds.
 
-- <code>duration</code> - Number, duration in ms
+#### `animation.run(universe, onFinish)`
 
-Delay the next animation step for duration.
-Returns a Animation object with the delay step added.
+Runs the animation on the specified universe.
 
+- **universe** *(Object)* – Reference to the universe driver.
+- **onFinish** *(Function)* – Callback executed when the animation completes.
 
-#### animation.run(universe, onFinish)
+#### `animation.runLoop(universe)`
 
-- <code>universe</code> - Object, reference to the universe driver
-- <code>onFinish</code> - Function, called when the animation is done
+Runs the animation continuously until `animation.stop()` is called.
 
-Run the Animation on the specified universe.
+##### Example: Animate a channel for 5 seconds
 
-#### animation.runLoop(universe)
-
-- <code>universe</code> - Object, reference to the universe driver
-
-Runs an animation constantly until <code>animation.stop()</code> is called
-
-The example below shows a value being animated for 5 seconds:
 ```javascript
-const animation = new DMX.Animation().add({
-  1: 255,
-}, 100).add({
-  1: 0,
-}, 100).runLoop(universe)
-
+const animation = new DMX.Animation()
+  .add({ 1: 255 }, 100)
+  .add({ 1: 0 }, 100)
+  .runLoop(universe);
 
 setTimeout(() => {
-  animation.stop()
-}, 5000)
+  animation.stop();
+}, 5000);
 ```
 
-#### update Event
+### `update` Event
 
-- <code>universe</code> - String, name of the universe
-- <code>channels</code> - Object, keys are channel numbers, values the values to set that channel to
-- <code>extraData</code> - Object, data that was passed to the <code>update</code> method.
+Emitted whenever `update` is called (either manually or by an animation step).
 
-This event is emitted whenever <code>update</code> is called either by the integrating application or by an animation step.
+- **universe** *(String)* – Universe name.
+- **channels** *(Object)* – Channels and their new values.
+- **extraData** *(Object)* – Data passed in `update`. If triggered by animation, `extraData.origin` will be `'animation'`.
 
-If triggered by an animation step, <code>extraData.origin</code> will be the string <code>'animation'</code>.
+## Web Interface
 
-## Webinterface
-
-Versions prior to 0.2 included a Webinterface. This has since been moved into its own repository at <https://github.com/node-dmx/dmx-web>
+Versions prior to `0.2` included a web interface, now available as a separate project: [dmx-web](https://github.com/node-dmx/dmx-web).
